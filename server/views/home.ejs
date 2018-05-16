@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.5.1/rzslider.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.5.1/rzslider.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Todolist app</title>
+</head>
+
+<body ng-controller="todoController">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed">
+        <div class="container">
+            <a href="" class="navbar-brand">Navbar</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="text-center text-white">Todolist App</h1>
+            <div class="row">
+                <div class="col-sm-10 col-md-8  mx-auto">
+                    <form action="" ng-submit="handleSubmit($event)">
+                        <div class="form-group">
+                            <label>What you intend to do</label>
+                            <input type="text" class="form-control" placeholder="Enter todo..." ng-model="curTodo.name">
+                        </div>
+                        <div class="form-group">
+                            <label for="">Note details</label>
+                            <textarea rows="7" ng-model="curTodo.note" class="form-control" placeholder="Note something here" id="txt-note-todo"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Level</label>
+                            <select ng-model="curTodo.level" class="form-control">
+                                <option value="1" selected>Easy</option>
+                                <option value="2">Medium</option>
+                                <option value="3">Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <rzslider rz-slider-model="curTodo.done" rz-slider-options="slider.options"></rzslider>
+                        </div>
+                        <button class="btn btn-success" type="submit">Save</button>
+                        <button class="btn btn-primary" type="button" ng-click="reset()">Reset</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row my-4">
+                <div class="col-sm-10 col-md-8 mx-auto">
+                    <div class="form-group">
+                        <label for="" class="text-white">Filter name</label>
+                        <input type="text" class="form-control" placeholder="Search todo here..." ng-model="nameSearched">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="text-white">Filter level</label>
+                        <select class="form-control" ng-change="searchLevelTodo()" ng-model="levelSearched">
+                            <option value="" selected>All</option>
+                            <option value="1">Easy</option>
+                            <option value="2">Medium</option>
+                            <option value="3">Hard</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="" class="text-white">Done start:</label>
+                                <input type="text" class="form-control" placeholder="Enter start done" ng-model="fromTodoDone">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="" class="text-white">Done end:</label>
+                                <input type="text" class="form-control" placeholder="Enter end done" ng-model="toTodoDone">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-3" ng-repeat="todo in todolist | filterTodoName : nameSearched | filterLevelTodo : levelSearched | filterDone : fromTodoDone : toTodoDone">
+                    <div class="card card-todo">
+                        <div class="card-body">
+                            <h4>{{ todo.name }}</h4>
+                            <div class="progress my-4">
+                                <div class="progress-bar bg-warning progress-bar-striped" role="progressbar" aria-valuenow="{{ todo.done }}" aria-valuemin="0"
+                                    aria-valuemax="100" style="width: {{ todo.done }}%">{{ todo.done }}%</div>
+                            </div>
+                            <button class="btn btn-danger" ng-click="delete(todo._id)">Remove</button>
+                            <button class="btn btn-success edit-btn" ng-click="edit(todo)">Edit</button>
+                            <button class="btn btn-info" data-toggle="modal" data-target="#model-view-details" ng-click="viewDetails(todo)">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <model-view-details></model-view-details>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <script src="js/client.js"></script>
+    <script src="js/services/queryData.service.js"></script>
+    <script src="js/controllers/todo.controller.js"></script>
+    <script src="js/filters/filter.js"></script>
+    <script src="js/directives/model.component.js"></script>
+
+</body>
+
+</html>
